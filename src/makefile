@@ -2,12 +2,12 @@
 # Warning: don't turn on USE_MKL and USE_SCALAPACK simultaneously
 # Set USE_MKL = 1 to compile with MKL BLAS, LAPACK, and ScaLAPACK
 # Set USE_MKL = 0 otherwise
-USE_MKL       = 0
+USE_MKL       = 1
 # Set USE_SCALAPACK = 1 to compile with non-MKL BLAS, LAPACK, and ScaLAPACK
 # Set USE_SCALAPACK = 0 to compile with non-MKL BLAS and LAPACK only
 USE_SCALAPACK = 0
 # Set USE_DP_SUBEIG = 1 to use SPARC rather than ScaLAPACK routines for matrix data distribution
-# (USE_DP_SUBEIG = 1 is required if both USE_MKL = 0 and USE_SCALAPACK = 0)
+# (Required if not using ScaLAPACK)
 # Set USE_DP_SUBEIG = 0 to use ScaLAPACK rather than SPARC routines
 USE_DP_SUBEIG = 1
 # Set DEBUG_MODE = 1 to run with debug mode and print debug output
@@ -65,7 +65,7 @@ OBJSC = main.o initialization.o readfiles.o atomdata.o parallelization.o relax.o
         occupation.o lapVecRoutines.o gradVecRoutines.o gradVecRoutinesKpt.o nlocVecRoutines.o   \
         hamiltonianVecRoutines.o lapVecOrth.o lapVecOrthKpt.o lapVecNonOrth.o lapVecNonOrthKpt.o \
         linearSolver.o mixing.o exchangeCorrelation.o eigenSolver.o eigenSolverKpt.o energy.o    \
-        forces.o stress.o pressure.o finalization.o
+        forces.o stress.o pressure.o finalization.o MCSH.o MCSHHelper.o MCSHDescriptorMain.o
 
 LIBBASE = ../lib/sparc
 TESTBASE = ../.ci

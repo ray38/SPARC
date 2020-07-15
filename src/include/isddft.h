@@ -392,6 +392,7 @@ typedef struct _SPARC_OBJ{
     double *psdChrgDens;          // pseudocharge density, "b" (LOCAL)
     double *psdChrgDens_ref;      // reference pseudocharge density, "b_ref" (LOCAL)
     double *Vc;                   // difference between reference pseudopotential V_ref and pseudopotential V, Vc = V_ref - V (LOCAL)
+    double *scfElectronDens;
     double *electronDens;         // electron density, "rho" (LOCAL)
     double *electronDens_at;      // electron density guess by summing atomic charge densities (LOCAL)
     double *elecstPotential;      // electrostatic potential, "phi" (LOCAL)
@@ -646,6 +647,8 @@ typedef struct _SPARC_OBJ{
     int Printrestart;
     int Printrestart_fq;
     int suffixNum;  // the number appended to the output filename, only used if it's greater than 0
+
+    
     
     /* Timing */
     double time_start;
@@ -660,6 +663,12 @@ typedef struct _SPARC_OBJ{
     // generalized eigen problem, and subspace rotation
     void *DP_CheFSI;     // Pointer to a DP_CheFSI_s data structure for those three procedures w/o Kpt
     void *DP_CheFSI_kpt; // Pointer to a DP_CheFSI_kpt_s data structure for those three procedures w/ Kpt
+
+    /* MCSH Related Options*/
+    int CalcMCSHFlag;
+    int MCSHMaxMCSHOrder;
+    double MCSHMaxRCutoff;
+    double MCSHRStepSize;
 }SPARC_OBJ;
 
 
@@ -852,6 +861,12 @@ typedef struct _SPARC_INPUT_OBJ{
     char filename_out[L_STRING];
     
     char SPARCROOT[L_STRING]; // SPARC root directory
+
+    /* MCSH Related Options*/
+    int CalcMCSHFlag;
+    int MCSHMaxMCSHOrder;
+    double MCSHMaxRCutoff;
+    double MCSHRStepSize;
 
 }SPARC_INPUT_OBJ;
 

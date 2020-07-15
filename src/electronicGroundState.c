@@ -37,6 +37,8 @@
 #include "stress.h"
 #include "pressure.h"
 
+#include "MCSHDescriptorMain.h"
+
 #ifdef USE_EVA_MODULE
 #include "ExtVecAccel/ExtVecAccel.h"
 #endif
@@ -199,9 +201,19 @@ void Calculate_electronicGroundState(SPARC_OBJ *pSPARC) {
 	            nonCart2Cart_coord(pSPARC, &pSPARC->atom_pos[3*i], &pSPARC->atom_pos[3*i+1], &pSPARC->atom_pos[3*i+2]);	
 		}
 	}
-	
+
+
+    
+
+
 	// Free the scf variables
 	Free_scfvar(pSPARC);
+
+    //calculate desctiptors
+    if (pSPARC->CalcMCSHFlag){
+        Calculate_MCSHDescriptors(pSPARC);
+    }
+	
 
     // print final electron density
     if (pSPARC->PrintElecDensFlag == 1) {
@@ -228,6 +240,75 @@ void Calculate_electronicGroundState(SPARC_OBJ *pSPARC) {
     }
 }
 
+void Calculate_MCSHDescriptors(SPARC_OBJ *pSPARC) {
+    int accuracy = 6;
+    int imageDimX = pSPARC->Nx;
+    int imageDimY = pSPARC->Ny;
+    int imageDimZ = pSPARC->Nz;
+
+    double bohrToAngstrom = 0.529177;
+
+    double hx = pSPARC->delta_x * bohrToAngstrom;
+    double hy = pSPARC->delta_y * bohrToAngstrom;
+    double hz = pSPARC->delta_z * bohrToAngstrom;
+    double *Urow = pSPARC->LatUVec;
+    double Ucol[9] = {Urow[0],Urow[3],Urow[6],Urow[1],Urow[4],Urow[7],Urow[2],Urow[5],Urow[8]};
+    double *U = Ucol;
+
+    int color = pSPARC->bandcomm_index;
+
+    int worldRank;
+    MPI_Comm_rank(MPI_COMM_WORLD, &worldRank);
+
+    MPI_Comm row_comm = pSPARC->bandcomm;
+
+    int numParallelComm = pSPARC->npband;
+
+    double *rho = pSPARC->scfElectronDens;
+
+    int MCSHMaxOrder = pSPARC->MCSHMaxMCSHOrder;
+    double MCSHMaxR = pSPARC->MCSHMaxRCutoff;
+    double MCSHRStepsize = pSPARC->MCSHRStepSize;
+
+
+    if (worldRank == 0)
+    {
+        // char DensFilename[128] = "density.csv";
+        // // printf(DensFilename);
+
+        // FILE *output_fp = fopen(DensFilename,"w");
+
+        // int i,j,k,index;
+        // for (k = 0; k < imageDimZ; k++){
+        //     for ( j = 0; j < imageDimY; j++) {
+        //         for ( i = 0; i < imageDimX; i++) {
+        //             index = k * imageDimX * imageDimY + j * imageDimX + i;
+        //             fprintf(output_fp,"%d,%d,%d,%.15f\n",i,j,k,rho[index]);
+        //         }
+        //     }
+        // }
+        // fclose(output_fp);
+        calcAndSaveCoords(rho, imageDimX, imageDimY, imageDimZ, hx, hy, hz, U);
+        
+        printf("\n Max order: %d \t Max R: %f \t R step: %f", MCSHMaxOrder, MCSHMaxR, MCSHRStepsize);
+        
+        printf("\n Nx: %d \t Ny: %d \t Nz: %d \n", imageDimX, imageDimY, imageDimZ );
+
+        printf("\n hx: %f \t hy: %f \t hz: %f \nU: \n %f \t %f \t %f \n %f \t %f \t %f \n %f \t %f \t %f \n", hx, hy, hz, U[0], U[3], U[6], U[1], U[4], U[7], U[2], U[5], U[8] );
+
+    }
+    
+    double t1, t2;
+    t1 = MPI_Wtime();
+    // void MCSHDescriptorMain(const double *rho, const int imageDimX, const int imageDimY, const int imageDimZ, const double hx, const double hy, const double hz, 
+	// 					double *U, const int accuracy, const int maxOrder, const double rMaxCutoff, const double rStepsize, 
+	// 					const int commIndex, const int numParallelComm, const MPI_Comm communicator)
+    MCSHDescriptorMain(rho, imageDimX, imageDimY, imageDimZ, hx, hy, hz, U, accuracy, MCSHMaxOrder, MCSHMaxR, MCSHRStepsize, color, numParallelComm, row_comm);
+    t2 = MPI_Wtime();
+    if (worldRank == 0)
+        printf("\n **** MCSH took: %f ms\n", (t2 - t1)*1000);
+
+}
 
 /**
  * @brief   Calculate electronic ground state electron density and energy 

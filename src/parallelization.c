@@ -1017,6 +1017,11 @@ void Setup_Comms(SPARC_OBJ *pSPARC) {
     pSPARC->forces = (double *)malloc( 3 * pSPARC->n_atom * sizeof(double) );
     assert(pSPARC->forces != NULL);
 
+    if (pSPARC->bandcomm_index != -1 && pSPARC->dmcomm != MPI_COMM_NULL) {
+        pSPARC->scfElectronDens = (double *) calloc(pSPARC->Nd_d_dmcomm * (2*pSPARC->Nspin-1), sizeof(double));
+        assert(pSPARC->scfElectronDens != NULL);
+    } 
+
     if (pSPARC->dmcomm != MPI_COMM_NULL && pSPARC->bandcomm_index >= 0) {
         pSPARC->Veff_loc_dmcomm = (double *)malloc( pSPARC->Nd_d_dmcomm * pSPARC->Nspin * sizeof(double) );
         assert(pSPARC->Veff_loc_dmcomm != NULL);

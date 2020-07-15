@@ -15,6 +15,9 @@
 #include "isddft.h"
 
 
+void Calculate_MCSHDescriptors(SPARC_OBJ *pSPARC);
+
+
 /**
  * @brief   Calculate the ground state energy and forces for fixed atom positions.  
  *

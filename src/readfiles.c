@@ -525,6 +525,18 @@ void read_input(SPARC_INPUT_OBJ *pSPARC_Input, SPARC_OBJ *pSPARC) {
         } else if (strcmpi(str,"OUTPUT_FILE:") == 0) {	  
             fscanf(input_fp,"%s",pSPARC_Input->filename_out);
             fscanf(input_fp, "%*[^\n]\n");
+	    } else if (strcmpi(str,"CALC_MCSH:") == 0) {	  
+            fscanf(input_fp,"%d",&pSPARC_Input->CalcMCSHFlag);
+            fscanf(input_fp, "%*[^\n]\n");
+        } else if (strcmpi(str,"MCSH_MAX_ORDER:") == 0) {	  
+            fscanf(input_fp,"%d",&pSPARC_Input->MCSHMaxMCSHOrder);
+            fscanf(input_fp, "%*[^\n]\n");
+	    } else if (strcmpi(str,"MCSH_MAX_R:") == 0) {	  
+            fscanf(input_fp,"%lf",&pSPARC_Input->MCSHMaxRCutoff);
+            fscanf(input_fp, "%*[^\n]\n");
+	    } else if (strcmpi(str,"MCSH_R_STEPSIZE:") == 0) {	  
+            fscanf(input_fp,"%lf",&pSPARC_Input->MCSHRStepSize);
+            fscanf(input_fp, "%*[^\n]\n");
 	    } else {
             printf("\nCannot recognize input variable identifier: \"%s\"\n",str);
             exit(EXIT_FAILURE);

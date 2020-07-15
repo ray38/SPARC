@@ -63,8 +63,52 @@ void Calculate_elecDens(int rank, SPARC_OBJ *pSPARC, int SCFcount, double error)
 #ifdef DEBUG
     if(!rank) printf("rank = %d, Transfering density took %.3f ms\n", rank, (t2 - t1) * 1e3);
 #endif
+    int length = (2*pSPARC->Nspin-1) * pSPARC->Nd_d_dmcomm;
+    if (rank == 0)
+        memcpy(pSPARC->scfElectronDens, rho, length * sizeof(double));
 
+    void BroadcastRho(SPARC_OBJ *pSPARC, double *rho, int length);
+    BroadcastRho(pSPARC, pSPARC->scfElectronDens, length);
+    // memcpy(pSPARC->scfElectronDens, rho, pSPARC->Nd_d_dmcomm * (2*pSPARC->Nspin-1) * sizeof(double));
     free(rho);
+}
+
+void BroadcastRho(SPARC_OBJ *pSPARC, double *rho, int length)
+{
+    double t1, t2;
+    #ifdef DEBUG
+        if (rank == 0) printf("rank = %d, --- Calculate rho: reduce over all kpoint groups took %.3f ms\n", rank, (t2-t1)*1e3);
+    #endif
+        
+        t1 = MPI_Wtime();
+        // sum over all band groups (only in the first k point group)
+        if (pSPARC->npband > 1 && pSPARC->spincomm_index == 0 && pSPARC->kptcomm_index == 0) {
+            MPI_Bcast( rho, length, MPI_DOUBLE,  0, pSPARC->blacscomm);
+        }
+        t2 = MPI_Wtime();
+    
+
+    #ifdef DEBUG
+        if (rank == 0) printf("rank = %d, --- Calculate rho: reduce over all spin_comm took %.3f ms\n", rank, (t2-t1)*1e3);
+    #endif
+
+        t1 = MPI_Wtime();
+        // sum over all k-point groups
+        if (pSPARC->spincomm_index == 0 &&  pSPARC->npkpt > 1) {    
+            MPI_Bcast( rho, length, MPI_DOUBLE,  0, pSPARC->kpt_bridge_comm);
+        }
+        t2 = MPI_Wtime();
+
+    #ifdef DEBUG
+        if (rank == 0) printf("rank = %d, --- Calculate rho: sum over local bands took %.3f ms\n", rank, (t2-t1)*1e3);
+    #endif
+
+        // sum over spin comm group
+        t1 = MPI_Wtime();
+        if(pSPARC->npspin > 1) {
+            MPI_Bcast( rho, length, MPI_DOUBLE,  0, pSPARC->spin_bridge_comm);
+        }
+        t2 = MPI_Wtime();
 }
 
 
