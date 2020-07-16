@@ -35,7 +35,7 @@
 #define min(x,y) ((x)<(y)?(x):(y))
 #define max(x,y) ((x)>(y)?(x):(y))
 
-#define N_MEMBR 118
+#define N_MEMBR 120
 
 
 
@@ -469,6 +469,8 @@ void set_defaults(SPARC_INPUT_OBJ *pSPARC_Input, SPARC_OBJ *pSPARC) {
     pSPARC->is_default_psd = 0;               // default pseudopotential path is disabled
 
     pSPARC_Input->CalcMCSHFlag = 0;
+    pSPARC_Input->MCSHRadialFunctionType = 1; // default to stepwise R
+    pSPARC_Input->MCSHRadialFunctionMaxOrder = 1;
     pSPARC_Input->MCSHMaxMCSHOrder = 0;
     pSPARC_Input->MCSHMaxRCutoff = 0.1;
     pSPARC_Input->MCSHRStepSize = 0.1;
@@ -811,6 +813,8 @@ void SPARC_copy_input(SPARC_OBJ *pSPARC, SPARC_INPUT_OBJ *pSPARC_Input) {
 
     //MCSH related values
     pSPARC->CalcMCSHFlag = pSPARC_Input->CalcMCSHFlag;
+    pSPARC->MCSHRadialFunctionType = pSPARC_Input->MCSHRadialFunctionType;
+    pSPARC->MCSHRadialFunctionMaxOrder = pSPARC_Input->MCSHRadialFunctionMaxOrder;
     pSPARC->MCSHMaxMCSHOrder = pSPARC_Input->MCSHMaxMCSHOrder;
     pSPARC->MCSHMaxRCutoff = pSPARC_Input->MCSHMaxRCutoff;
     pSPARC->MCSHRStepSize = pSPARC_Input->MCSHRStepSize;
@@ -2414,9 +2418,16 @@ void write_output_init(SPARC_OBJ *pSPARC) {
     /* MCSH related printouts */
     fprintf(output_fp,"CALC_MCSH: %d\n",pSPARC->CalcMCSHFlag);
     if(pSPARC->CalcMCSHFlag == 1){
-        fprintf(output_fp,"MCSH_MAX_ORDER: %d\n",pSPARC->MCSHMaxMCSHOrder);
-        fprintf(output_fp,"MCSH_MAX_R: %.10f\n",pSPARC->MCSHMaxRCutoff);
-        fprintf(output_fp,"MCSH_R_STEPSIZE: %.10f\n",pSPARC->MCSHRStepSize);
+        if (pSPARC->MCSHRadialFunctionType == 1){
+            fprintf(output_fp,"MCSH_RADIAL_TYPE: %d\n",pSPARC->MCSHRadialFunctionType);
+            fprintf(output_fp,"MCSH_MAX_ORDER: %d\n",pSPARC->MCSHMaxMCSHOrder);
+            fprintf(output_fp,"MCSH_MAX_R: %.10f\n",pSPARC->MCSHMaxRCutoff);
+            fprintf(output_fp,"MCSH_R_STEPSIZE: %.10f\n",pSPARC->MCSHRStepSize);
+        } else if (pSPARC->MCSHRadialFunctionType == 2){
+            fprintf(output_fp,"MCSH_RADIAL_TYPE: %d\n",pSPARC->MCSHRadialFunctionType);
+            fprintf(output_fp,"MCSH_RADIAL_MAX_ORDER: %d\n",pSPARC->MCSHRadialFunctionMaxOrder);
+            fprintf(output_fp,"MCSH_MAX_R: %.10f\n",pSPARC->MCSHMaxRCutoff);
+        }
     }
 
     if (pSPARC->RelaxFlag == 1) {
@@ -2566,7 +2577,7 @@ void SPARC_Input_MPI_create(MPI_Datatype *pSPARC_INPUT_MPI) {
                                          MPI_INT, MPI_INT, MPI_INT, MPI_INT, MPI_INT,
                                          MPI_INT, MPI_INT, MPI_INT, MPI_INT, MPI_INT,
                                          MPI_INT, MPI_INT, MPI_INT, MPI_INT, MPI_INT,
-                                         MPI_INT, MPI_INT, MPI_INT, MPI_INT, MPI_INT, MPI_INT, MPI_INT,
+                                         MPI_INT, MPI_INT, MPI_INT, MPI_INT, MPI_INT, MPI_INT, MPI_INT, MPI_INT, MPI_INT,
                                          MPI_DOUBLE, MPI_DOUBLE, MPI_DOUBLE, MPI_DOUBLE, MPI_DOUBLE,
                                          MPI_DOUBLE, MPI_DOUBLE, MPI_DOUBLE, MPI_DOUBLE, MPI_DOUBLE,
                                          MPI_DOUBLE, MPI_DOUBLE, MPI_DOUBLE, MPI_DOUBLE, MPI_DOUBLE,
@@ -2590,7 +2601,7 @@ void SPARC_Input_MPI_create(MPI_Datatype *pSPARC_INPUT_MPI) {
                           1, 1, 1, 1, 1,
                           1, 1, 1, 1, 1,
                           1, 1, 1, 1, 1,
-                          1, 1, 1, 1, 1, 1, 1,/* int */
+                          1, 1, 1, 1, 1, 1, 1, 1, 1,/* int */
                           1, 1, 1, 9, 1,
                           1, 3, 1, 1, 1,
                           1, 1, 1, 1, 1,
@@ -2669,6 +2680,8 @@ void SPARC_Input_MPI_create(MPI_Datatype *pSPARC_INPUT_MPI) {
 
     MPI_Get_address(&sparc_input_tmp.CalcMCSHFlag, addr + i++);
     MPI_Get_address(&sparc_input_tmp.MCSHMaxMCSHOrder, addr + i++);
+    MPI_Get_address(&sparc_input_tmp.MCSHRadialFunctionType, addr + i++);
+    MPI_Get_address(&sparc_input_tmp.MCSHRadialFunctionMaxOrder, addr + i++);
 
     MPI_Get_address(&sparc_input_tmp.elec_T_type, addr + i++);
     MPI_Get_address(&sparc_input_tmp.MD_Nstep, addr + i++);

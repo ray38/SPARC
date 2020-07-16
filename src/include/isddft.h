@@ -666,6 +666,8 @@ typedef struct _SPARC_OBJ{
 
     /* MCSH Related Options*/
     int CalcMCSHFlag;
+    int MCSHRadialFunctionType;
+    int MCSHRadialFunctionMaxOrder;
     int MCSHMaxMCSHOrder;
     double MCSHMaxRCutoff;
     double MCSHRStepSize;
@@ -864,6 +866,8 @@ typedef struct _SPARC_INPUT_OBJ{
 
     /* MCSH Related Options*/
     int CalcMCSHFlag;
+    int MCSHRadialFunctionType;
+    int MCSHRadialFunctionMaxOrder;
     int MCSHMaxMCSHOrder;
     double MCSHMaxRCutoff;
     double MCSHRStepSize;

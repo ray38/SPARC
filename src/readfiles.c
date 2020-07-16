@@ -528,6 +528,12 @@ void read_input(SPARC_INPUT_OBJ *pSPARC_Input, SPARC_OBJ *pSPARC) {
 	    } else if (strcmpi(str,"CALC_MCSH:") == 0) {	  
             fscanf(input_fp,"%d",&pSPARC_Input->CalcMCSHFlag);
             fscanf(input_fp, "%*[^\n]\n");
+        } else if (strcmpi(str,"MCSH_RADIAL_TYPE:") == 0) {	  
+            fscanf(input_fp,"%d",&pSPARC_Input->MCSHRadialFunctionType);
+            fscanf(input_fp, "%*[^\n]\n");
+        } else if (strcmpi(str,"MCSH_RADIAL_MAX_ORDER:") == 0) {	  
+            fscanf(input_fp,"%d",&pSPARC_Input->MCSHRadialFunctionMaxOrder);
+            fscanf(input_fp, "%*[^\n]\n");
         } else if (strcmpi(str,"MCSH_MAX_ORDER:") == 0) {	  
             fscanf(input_fp,"%d",&pSPARC_Input->MCSHMaxMCSHOrder);
             fscanf(input_fp, "%*[^\n]\n");

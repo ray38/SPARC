@@ -266,44 +266,49 @@ void Calculate_MCSHDescriptors(SPARC_OBJ *pSPARC) {
 
     double *rho = pSPARC->scfElectronDens;
 
-    int MCSHMaxOrder = pSPARC->MCSHMaxMCSHOrder;
-    double MCSHMaxR = pSPARC->MCSHMaxRCutoff;
-    double MCSHRStepsize = pSPARC->MCSHRStepSize;
 
-
-    if (worldRank == 0)
-    {
-        // char DensFilename[128] = "density.csv";
-        // // printf(DensFilename);
-
-        // FILE *output_fp = fopen(DensFilename,"w");
-
-        // int i,j,k,index;
-        // for (k = 0; k < imageDimZ; k++){
-        //     for ( j = 0; j < imageDimY; j++) {
-        //         for ( i = 0; i < imageDimX; i++) {
-        //             index = k * imageDimX * imageDimY + j * imageDimX + i;
-        //             fprintf(output_fp,"%d,%d,%d,%.15f\n",i,j,k,rho[index]);
-        //         }
-        //     }
-        // }
-        // fclose(output_fp);
-        calcAndSaveCoords(rho, imageDimX, imageDimY, imageDimZ, hx, hy, hz, U);
-        
-        printf("\n Max order: %d \t Max R: %f \t R step: %f", MCSHMaxOrder, MCSHMaxR, MCSHRStepsize);
-        
-        printf("\n Nx: %d \t Ny: %d \t Nz: %d \n", imageDimX, imageDimY, imageDimZ );
-
-        printf("\n hx: %f \t hy: %f \t hz: %f \nU: \n %f \t %f \t %f \n %f \t %f \t %f \n %f \t %f \t %f \n", hx, hy, hz, U[0], U[3], U[6], U[1], U[4], U[7], U[2], U[5], U[8] );
-
-    }
-    
     double t1, t2;
     t1 = MPI_Wtime();
-    // void MCSHDescriptorMain(const double *rho, const int imageDimX, const int imageDimY, const int imageDimZ, const double hx, const double hy, const double hz, 
-	// 					double *U, const int accuracy, const int maxOrder, const double rMaxCutoff, const double rStepsize, 
-	// 					const int commIndex, const int numParallelComm, const MPI_Comm communicator)
-    MCSHDescriptorMain(rho, imageDimX, imageDimY, imageDimZ, hx, hy, hz, U, accuracy, MCSHMaxOrder, MCSHMaxR, MCSHRStepsize, color, numParallelComm, row_comm);
+
+    int MCSHRadialType = pSPARC->MCSHRadialFunctionType;
+    if (MCSHRadialType == 1)
+    {
+        int MCSHMaxOrder = pSPARC->MCSHMaxMCSHOrder;
+        double MCSHMaxR = pSPARC->MCSHMaxRCutoff;
+        double MCSHRStepsize = pSPARC->MCSHRStepSize;
+
+        if (worldRank == 0)
+        {
+            calcAndSaveCoords(rho, imageDimX, imageDimY, imageDimZ, hx, hy, hz, U);
+            printf("\n Max order: %d \t Max R: %f \t R step: %f", MCSHMaxOrder, MCSHMaxR, MCSHRStepsize);
+            printf("\n Nx: %d \t Ny: %d \t Nz: %d \n", imageDimX, imageDimY, imageDimZ );
+            printf("\n hx: %f \t hy: %f \t hz: %f \nU: \n %f \t %f \t %f \n %f \t %f \t %f \n %f \t %f \t %f \n", hx, hy, hz, U[0], U[3], U[6], U[1], U[4], U[7], U[2], U[5], U[8] );
+        }
+
+        MCSHDescriptorMain_RadialRStep(rho, imageDimX, imageDimY, imageDimZ, hx, hy, hz, U, accuracy, MCSHMaxOrder, MCSHMaxR, MCSHRStepsize, color, numParallelComm, row_comm);
+        
+    } else if (MCSHRadialType == 2)
+    {
+        int MCSHMaxOrder = pSPARC->MCSHMaxMCSHOrder;
+        double MCSHRCutoff = pSPARC->MCSHMaxRCutoff;
+        int MCSHRadialMaxOrder = pSPARC->MCSHRadialFunctionMaxOrder;
+
+        if (worldRank == 0)
+        {
+            calcAndSaveCoords(rho, imageDimX, imageDimY, imageDimZ, hx, hy, hz, U);
+            printf("\n Max MCSH order: %d \t R Cutoff: %f \t Max Legendre Order: %d", MCSHMaxOrder, MCSHRCutoff, MCSHRadialMaxOrder);
+            printf("\n Nx: %d \t Ny: %d \t Nz: %d \n", imageDimX, imageDimY, imageDimZ );
+            printf("\n hx: %f \t hy: %f \t hz: %f \nU: \n %f \t %f \t %f \n %f \t %f \t %f \n %f \t %f \t %f \n", hx, hy, hz, U[0], U[3], U[6], U[1], U[4], U[7], U[2], U[5], U[8] );
+        }
+
+        MCSHDescriptorMain_RadialLegendre(rho, imageDimX, imageDimY, imageDimZ, hx, hy, hz, U, accuracy, MCSHRCutoff, MCSHMaxOrder, MCSHRadialMaxOrder, color, numParallelComm, row_comm);
+    
+    } else
+    {
+        printf("\nWARNING: Radial function type NOT recognized, MCSH descriptor not calculated \n");
+    }
+    
+
     t2 = MPI_Wtime();
     if (worldRank == 0)
         printf("\n **** MCSH took: %f ms\n", (t2 - t1)*1000);
