@@ -255,14 +255,28 @@ void Calculate_MCSHDescriptors(SPARC_OBJ *pSPARC) {
     double Ucol[9] = {Urow[0],Urow[3],Urow[6],Urow[1],Urow[4],Urow[7],Urow[2],Urow[5],Urow[8]};
     double *U = Ucol;
 
-    int color = pSPARC->bandcomm_index;
+    int numSpinComm = pSPARC->npspin;
+    int numKptComm = pSPARC->npkpt;
+    int numBandComm = pSPARC->npband;
+
+    int numParallelComm = numSpinComm * numKptComm * numBandComm;
+    int commIndex = pSPARC->spincomm_index * numKptComm * numBandComm + pSPARC->kptcomm_index * numBandComm + pSPARC->bandcomm_index;
+    
 
     int worldRank;
     MPI_Comm_rank(MPI_COMM_WORLD, &worldRank);
 
+    
     MPI_Comm row_comm = pSPARC->bandcomm;
 
-    int numParallelComm = pSPARC->npband;
+    int numProcPerComm;
+    MPI_Comm_size(communicator, &numProcPerComm);
+    if (numProcPerComm > 1)
+    {
+        printf("\nWARNING: number of process available in this CPU group is larger than 1, so informaion of rho might not be complete, please change the number of processor to try again\n");
+    }
+
+    // int numParallelComm = pSPARC->npband;
 
     double *rho = pSPARC->scfElectronDens;
 
@@ -280,12 +294,13 @@ void Calculate_MCSHDescriptors(SPARC_OBJ *pSPARC) {
         if (worldRank == 0)
         {
             calcAndSaveCoords(rho, imageDimX, imageDimY, imageDimZ, hx, hy, hz, U);
+            printf("\n Total available cpu groups: %d", numParallelComm);
             printf("\n Max order: %d \t Max R: %f \t R step: %f", MCSHMaxOrder, MCSHMaxR, MCSHRStepsize);
             printf("\n Nx: %d \t Ny: %d \t Nz: %d \n", imageDimX, imageDimY, imageDimZ );
             printf("\n hx: %f \t hy: %f \t hz: %f \nU: \n %f \t %f \t %f \n %f \t %f \t %f \n %f \t %f \t %f \n", hx, hy, hz, U[0], U[3], U[6], U[1], U[4], U[7], U[2], U[5], U[8] );
         }
 
-        MCSHDescriptorMain_RadialRStep(rho, imageDimX, imageDimY, imageDimZ, hx, hy, hz, U, accuracy, MCSHMaxOrder, MCSHMaxR, MCSHRStepsize, color, numParallelComm, row_comm);
+        MCSHDescriptorMain_RadialRStep(rho, imageDimX, imageDimY, imageDimZ, hx, hy, hz, U, accuracy, MCSHMaxOrder, MCSHMaxR, MCSHRStepsize, commIndex, numParallelComm, row_comm);
         
     } else if (MCSHRadialType == 2)
     {
@@ -301,7 +316,7 @@ void Calculate_MCSHDescriptors(SPARC_OBJ *pSPARC) {
             printf("\n hx: %f \t hy: %f \t hz: %f \nU: \n %f \t %f \t %f \n %f \t %f \t %f \n %f \t %f \t %f \n", hx, hy, hz, U[0], U[3], U[6], U[1], U[4], U[7], U[2], U[5], U[8] );
         }
 
-        MCSHDescriptorMain_RadialLegendre(rho, imageDimX, imageDimY, imageDimZ, hx, hy, hz, U, accuracy, MCSHRCutoff, MCSHMaxOrder, MCSHRadialMaxOrder, color, numParallelComm, row_comm);
+        MCSHDescriptorMain_RadialLegendre(rho, imageDimX, imageDimY, imageDimZ, hx, hy, hz, U, accuracy, MCSHRCutoff, MCSHMaxOrder, MCSHRadialMaxOrder, commIndex, numParallelComm, row_comm);
     
     } else
     {
