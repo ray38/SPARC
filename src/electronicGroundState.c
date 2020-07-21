@@ -270,7 +270,7 @@ void Calculate_MCSHDescriptors(SPARC_OBJ *pSPARC) {
     MPI_Comm row_comm = pSPARC->bandcomm;
 
     int numProcPerComm;
-    MPI_Comm_size(communicator, &numProcPerComm);
+    MPI_Comm_size(row_comm, &numProcPerComm);
     if (numProcPerComm > 1)
     {
         printf("\nWARNING: number of process available in this CPU group is larger than 1, so informaion of rho might not be complete, please change the number of processor to try again\n");
