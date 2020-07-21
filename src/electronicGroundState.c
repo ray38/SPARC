@@ -248,9 +248,9 @@ void Calculate_MCSHDescriptors(SPARC_OBJ *pSPARC) {
 
     double bohrToAngstrom = 0.529177249;
 
-    double hx = pSPARC->delta_x * bohrToAngstrom;
-    double hy = pSPARC->delta_y * bohrToAngstrom;
-    double hz = pSPARC->delta_z * bohrToAngstrom;
+    double hx = pSPARC->delta_x// * bohrToAngstrom;
+    double hy = pSPARC->delta_y// * bohrToAngstrom;
+    double hz = pSPARC->delta_z// * bohrToAngstrom;
     double *Urow = pSPARC->LatUVec;
     double Ucol[9] = {Urow[0],Urow[3],Urow[6],Urow[1],Urow[4],Urow[7],Urow[2],Urow[5],Urow[8]};
     double *U = Ucol;
@@ -288,8 +288,8 @@ void Calculate_MCSHDescriptors(SPARC_OBJ *pSPARC) {
     if (MCSHRadialType == 1)
     {
         int MCSHMaxOrder = pSPARC->MCSHMaxMCSHOrder;
-        double MCSHMaxR = pSPARC->MCSHMaxRCutoff * bohrToAngstrom;
-        double MCSHRStepsize = pSPARC->MCSHRStepSize * bohrToAngstrom;
+        double MCSHMaxR = pSPARC->MCSHMaxRCutoff// * bohrToAngstrom;
+        double MCSHRStepsize = pSPARC->MCSHRStepSize// * bohrToAngstrom;
 
         if (worldRank == 0)
         {
@@ -305,7 +305,7 @@ void Calculate_MCSHDescriptors(SPARC_OBJ *pSPARC) {
     } else if (MCSHRadialType == 2)
     {
         int MCSHMaxOrder = pSPARC->MCSHMaxMCSHOrder;
-        double MCSHRCutoff = pSPARC->MCSHMaxRCutoff * bohrToAngstrom;
+        double MCSHRCutoff = pSPARC->MCSHMaxRCutoff// * bohrToAngstrom;
         int MCSHRadialMaxOrder = pSPARC->MCSHRadialFunctionMaxOrder;
 
         if (worldRank == 0)
