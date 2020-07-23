@@ -2425,6 +2425,7 @@ void write_output_init(SPARC_OBJ *pSPARC) {
             fprintf(output_fp,"MCSH_R_STEPSIZE: %.10f\n",pSPARC->MCSHRStepSize);
         } else if (pSPARC->MCSHRadialFunctionType == 2){
             fprintf(output_fp,"MCSH_RADIAL_TYPE: %d\n",pSPARC->MCSHRadialFunctionType);
+            fprintf(output_fp,"MCSH_MAX_ORDER: %d\n",pSPARC->MCSHMaxMCSHOrder);
             fprintf(output_fp,"MCSH_RADIAL_MAX_ORDER: %d\n",pSPARC->MCSHRadialFunctionMaxOrder);
             fprintf(output_fp,"MCSH_MAX_R: %.10f\n",pSPARC->MCSHMaxRCutoff);
         }
