@@ -291,7 +291,7 @@ void Calculate_MCSHDescriptors(SPARC_OBJ *pSPARC) {
         double MCSHMaxR = pSPARC->MCSHMaxRCutoff;// * bohrToAngstrom;
         double MCSHRStepsize = pSPARC->MCSHRStepSize;// * bohrToAngstrom;
 
-        if (worldRank == 0)
+        if (worldRank == 5)
         {
             calcAndSaveCoords(rho, imageDimX, imageDimY, imageDimZ, hx, hy, hz, U);
             printf("\n Total available cpu groups: %d", numParallelComm);
@@ -308,7 +308,7 @@ void Calculate_MCSHDescriptors(SPARC_OBJ *pSPARC) {
         double MCSHRCutoff = pSPARC->MCSHMaxRCutoff;// * bohrToAngstrom;
         int MCSHRadialMaxOrder = pSPARC->MCSHRadialFunctionMaxOrder;
 
-        if (worldRank == 0)
+        if (worldRank == 5)
         {
             calcAndSaveCoords(rho, imageDimX, imageDimY, imageDimZ, hx, hy, hz, U);
             printf("\n Max MCSH order: %d \t R Cutoff: %f \t Max Legendre Order: %d", MCSHMaxOrder, MCSHRCutoff, MCSHRadialMaxOrder);

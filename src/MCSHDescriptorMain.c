@@ -361,7 +361,7 @@ void calcAndSaveCoords(const double *rho, const int imageDimX, const int imageDi
 	for (k = 0; k < imageDimZ; k++){
 		for ( j = 0; j < imageDimY; j++) {
 			for ( i = 0; i < imageDimX; i++) {
-				fprintf(output_fp,"%.15f,%.15f,%.15f,%.15f\n",X[index],Y[index],Z[index],rho[index]);
+				fprintf(output_fp,"%d,%d,%d,%.15f,%.15f,%.15f,%.15f\n",i,j,k,X[index],Y[index],Z[index],rho[index]);
 				index ++;
 			}
 		}

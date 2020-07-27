@@ -46,6 +46,8 @@ double calcDv(const double hx, const double hy, const double hz, const int accur
 
 double sumArr(const double *arr, const int size);
 
+double sumAbsArr(const double *arr, const int size);
+
 void linspace(double start, double end, double *result, int num);
 
 void meshgrid3D(const double *x, const double *y, const double *z, const int sizex, const int sizey, const int sizez, double *X, double *Y, double *Z);

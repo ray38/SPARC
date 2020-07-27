@@ -401,7 +401,7 @@ double calcDv(const double hx, const double hy, const double hz, const int accur
 	Point l2 = {U[3] * hyAcc, U[4] * hyAcc, U[5] * hyAcc};
 	Point l3 = {U[6] * hzAcc, U[7] * hzAcc, U[8] * hzAcc};
 
-	Point crossL2L3 = {l2.y * l3.z - l2.z * l3.y, l2.z * l3.x - l2.x * l3.z, l2.x * l3.z - l2.z * l3.x};
+	Point crossL2L3 = {l2.y * l3.z - l2.z * l3.y, l2.z * l3.x - l2.x * l3.z, l2.x * l3.y - l2.y * l3.x};
 
 	double result = fabs(l1.x * crossL2L3.x + l1.y * crossL2L3.y + l1.z * crossL2L3.z);
 
@@ -420,6 +420,19 @@ double sumArr(const double *arr, const int size)
 	return result;
 
 }
+
+double sumAbsArr(const double *arr, const int size)
+{	
+	double result = 0;
+	int i;
+	for (i = 0; i < size; i++)
+	{
+		result += fabs(arr[i]);
+	}
+	return result;
+
+}
+
 
 
 

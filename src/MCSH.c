@@ -50,10 +50,18 @@ void MaxwellCartesianSphericalHarmonics(const double *x, const double *y, const 
 		case 0:
 			//uncutResult = 1;
 			// printf(" l = 0\n");
-			
-			for ( i = 0; i < size; i++)
+
+			if (strcmp(n, "000") == 0) 
 			{
-				result[i] = 1.0;
+				for ( i = 0; i < size; i++)
+				{
+					result[i] = 1.0;
+
+				}
+			} 
+			else
+			{
+				printf("\nWARNING: n is not valid %s \n", n);
 			}
 			break;
 
@@ -470,6 +478,11 @@ void MaxwellCartesianSphericalHarmonics(const double *x, const double *y, const 
 		//printf("after: %10f \n",result[i]);
 	}
 
+	// for (i = 0; i < size; i++)
+	// {
+	// 	printf("x: %10f \t y: %10f \t z: %10f \t r: %10f \t rCutoff: %f \t l: %d \t n: %s \t result: %10f\n", x[i],y[i],z[i], r[i], rCutoff, l, n, result[i]);
+	// }
+
 
 	//free(uncutResult);
 	free(r);
@@ -495,6 +508,18 @@ void calculateStencil(const int stencilDimX, const int stencilDimY, const int st
 
 	getCentralCoords(hx, hy, hz, accuracy, refX, refY, refZ);
 
+	// char stencilRefXFilename[128];
+	// snprintf(stencilRefXFilename, 128, "stencil_RefX_%f_%d_%s_Type%d_%d.csv", rCutoff, l, n, radialFunctionType, radialFunctionOrder);
+	// writeMatToFile(stencilRefXFilename, refX, accuracy, accuracy, accuracy);
+
+	// char stencilRefYFilename[128];
+	// snprintf(stencilRefYFilename, 128, "stencil_RefY_%f_%d_%s_Type%d_%d.csv", rCutoff, l, n, radialFunctionType, radialFunctionOrder);
+	// writeMatToFile(stencilRefYFilename, refY, accuracy, accuracy, accuracy);
+
+	// char stencilRefZFilename[128];
+	// snprintf(stencilRefZFilename, 128, "stencil_RefZ_%f_%d_%s_Type%d_%d.csv", rCutoff, l, n, radialFunctionType, radialFunctionOrder);
+	// writeMatToFile(stencilRefZFilename, refZ, accuracy, accuracy, accuracy);
+
 	int centerX = (stencilDimX - 1)/2;
     int centerY = (stencilDimY - 1)/2;
     int centerZ = (stencilDimZ - 1)/2;
@@ -509,7 +534,7 @@ void calculateStencil(const int stencilDimX, const int stencilDimY, const int st
 	for (k = 0; k < stencilDimZ; k++){
 		for ( j = 0; j < stencilDimY; j++) {
 			for ( i = 0; i < stencilDimX; i++) {
-				// printf("start %d %d %d\n", i,j,k);
+				//printf("start %d %d %d\n", i,j,k);
 				xOffset = (i-centerX) * hx;
 				yOffset = (j-centerY) * hy;
 				zOffset = (k-centerZ) * hz;
@@ -528,6 +553,7 @@ void calculateStencil(const int stencilDimX, const int stencilDimY, const int st
 					multiplyVector(tempMCSHResult, tempRadialResult, tempMCSHResult, pixelEvalArrSize);
 				}
 				//stencil[index] = cblas_dasum(pixelEvalArrSize, tempMCSHResult, 1) * dv;
+				//printf("start %d %d %d \t sum: %f \t sumAbs: %f \t dv: %f\n", i,j,k, sumArr(tempMCSHResult, pixelEvalArrSize), sumAbsArr(tempMCSHResult, pixelEvalArrSize), dv);
 				stencil[index] = sumArr(tempMCSHResult, pixelEvalArrSize) * dv;
 				index++;
 			}
@@ -559,6 +585,11 @@ void calcStencilAndConvolveAndAddResult(const double *image, const int imageDimX
 	double *stencil = calloc( stencilDimX * stencilDimY * stencilDimZ, sizeof(double));
 	calculateStencil(stencilDimX, stencilDimY, stencilDimZ, hx, hy, hz, 
 					 rCutoff, l, n, radialFunctionType, radialFunctionOrder, U, accuracy, stencil);
+
+
+	// char stencilFilename[128];
+	// snprintf(stencilFilename, 128, "stencil_%f_%d_%s_Type%d_%d.csv", rCutoff, l, n, radialFunctionType, radialFunctionOrder);
+	// writeMatToFile(stencilFilename, stencil, stencilDimX, stencilDimY, stencilDimZ);
 
 	// printf("end stencil calculation \n");
 	// time(&end_stencil_t); 
